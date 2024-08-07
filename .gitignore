@@ -1,11 +1,8 @@
 [OS Files]
 .DS_Store
-.idea/*
+.idea/
 
 [Data Files]
 *.mat
 *.json
 *.csv
-
-[experiment files]
-exp_*
