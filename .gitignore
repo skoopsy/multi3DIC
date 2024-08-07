@@ -6,6 +6,7 @@
 *.mat
 *.json
 *.csv
+<<<<<<< HEAD
 test_files/*
 plots/*
 
