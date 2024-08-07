@@ -6,6 +6,7 @@
 *.mat
 *.json
 *.csv
+test_files/*
 
 [experiment files]
 exp_*

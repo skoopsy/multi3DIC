@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from scipy.spatial import Delaunay
 import sys
 sys.path.append("..")
-
+import os
 
 class DICDataset:
     """ Class to hold data from a stereo DIC dataset """
@@ -18,55 +18,47 @@ class DICDataset:
         self.z_filtered = None
         self.strain = None
         self.strain_filtered = None
-        self.trisurface = None  # Depreciate
+        self.trisurface = None # Depreciate
         self.simplices = None
         self.simplices_filtered = None
 
-
 def import_data(path, import_type):
     """
-    Loads a vector field file into a DICDataset object. The vector field file is assumed
-    to have been produced by DIC software producing xyz coordinates along with the
-    associated strain values. This import currently imports a single timestep.
-
-    :param  path :string
-    :param  import_type :string
-    :return: None
+    Loads a vector field file into a
+    DICDataset object.
     """
     csv_df = pd.read_csv(path)
 
     # Instantiate class to store data
-    dic_data = DICDataset()
+    data = DICDataset()
 
     if import_type == 'LAVision':
         # Put data in numpy arrays
-        dic_data.x = csv_df['x[mm]'].to_numpy()
-        dic_data.y = csv_df['y[mm]'].to_numpy()
-        dic_data.z = csv_df['z[mm]'].to_numpy()
-        dic_data.strain = csv_df['Maximum normal strain - RC[S]'].to_numpy()
+        data.x = csv_df['x[mm]'].to_numpy()
+        data.y = csv_df['y[mm]'].to_numpy()
+        data.z = csv_df['z[mm]'].to_numpy()
+        data.strain = csv_df['Maximum normal strain - RC[S]'].to_numpy()
 
-    return dic_data
-
+    return data
 
 def create_delaunay_mesh(DICDataset):
     """
     Construct a Delaunay triangular mesh from a DICDataset with x,y,z
     coordinates as an attribute in the DICDataset object.
 
-    :param DICDataset :DICDataset object
+    :param DICDataset:
     :return: None
     """
     # Create array of 2d points (xy)
-    points_2d = np.vstack([DICDataset.x, DICDataset.y]).T
+    points2D = np.vstack([DICDataset.x,DICDataset.y]).T
 
     # Use Delaunay meshing to connect 2d points
-    tri = Delaunay(points_2d)
+    tri = Delaunay(points2D)
     DICDataset.simplices = tri.simplices
 
     return None
 
-
-def plot_delaunay_mesh(x, y, z, simplices, z_scale=1):
+def plot_delaunay_mesh(x,y,z,simplices, z_scale=1):
     # Just for testing, using go for strain map.
     fig = ff.create_trisurf(x=x, y=y, z=z,
                             simplices=simplices,
@@ -75,7 +67,6 @@ def plot_delaunay_mesh(x, y, z, simplices, z_scale=1):
     fig.show()
 
     return None
-
 
 def plot_delaunay_mesh_strain(x, y, z, simplices, strain, z_scale=1):
     # Create trisurface plot
@@ -108,15 +99,14 @@ def plot_delaunay_mesh_strain(x, y, z, simplices, strain, z_scale=1):
     fig.show()
 
     return None
-
 def filter_strain0_data(DICDataset):
     """
-    Fixes Region of Interest (ROI) issue where the mesh is the full
+    Fixes Region of interest issue where the mesh is the full
     resolution of the camera which captures noise. This removes
     data points which correspond to a zero strain reading.
 
-    This could bite back if the ROI has areas of 0 strain, but
-    due to noise the measurements are unlikely to == 0.
+    This could bite back if the ROI has areas of 0 strain but
+    due to measurement noise I do not think the values will ever == 0.
     """
 
     # Filter out points where strain = 0
@@ -127,28 +117,52 @@ def filter_strain0_data(DICDataset):
     DICDataset.strain_filtered = DICDataset.strain[mask]
 
     # Create mapping from old indices to new
-    index_map = np.zeros_like(mask, dtype=int)
-    index_map[mask] = np.arange(len(DICDataset.x_filtered))
+    #index_map = np.zeros_like(mask, dtype=int)
+    #index_map[mask] = np.arange(len(DICDataset.x_filtered))
 
     # Filter simplices to remove any that contain removed points
-    DICDataset.simplices_filtered = []
-    for simplex in DICDataset.simplices:
-        if mask[simplex].all():  # Only keep simplices where all points are kept
-            DICDataset.simplices_filtered.append(index_map[simplex])
+    #DICDataset.simplices_filtered = []
+    #for simplex in DICDataset.simplices:
+    #    if mask[simplex].all():  # Only keep simplices where all points are kept
+    #        DICDataset.simplices_filtered.append(index_map[simplex])
 
-    DICDataset.simplices_filtered = np.array(DICDataset.simplices_filtered)
+    #DICDataset.simplices_filtered = np.array(DICDataset.simplices_filtered)
 
     return None
 
+    points_2d = np.vstack((DICDataset.x_filtered, DICDataset.y_filtered)).T
+    delaunay = Delaunay(points_2d)
+    DICDataset.simplices_filtered = delaunay.simplices
+
+def combine_stereo_pairs(meshes):
+    all_data = DICDataset
+    vertext_offset = 0
+    all_data.x = []
+    all_data.y = []
+    all_data.z = []
+    all_data.strain = []
+
+    for mesh in meshes:
+        all_data.x.append(mesh.x)
+        all_data.y.append(mesh.y)
+        all_data.z.append(mesh.z)
+        all_data.strain.append(mesh.strain)
+
+    return all_data
 
 if __name__ == '__main__':
 
-    data = import_data(path='test_files/vector_field_export_cam1-2-0001.csv',
-                       import_type='LAVision')
-    create_delaunay_mesh(data)
-    filter_strain0_data(data)
+    data1 = import_data(path='test_files/vector_field_export_cam1-2-0001.csv',
+                        import_type='LAVision')
+    data2 = import_data(path='test_files/vector_field_export_cam2-3-0001.csv',
+                        import_type='LAVision')
+    data3 = import_data(path='test_files/vector_field_export_cam3-4-0001.csv',
+                        import_type='LAVision')
 
-    plot_delaunay_mesh_strain(x=data.x_filtered, y=data.y_filtered,
-                              z=data.z_filtered,
-                              simplices=data.simplices_filtered,
-                              strain=data.strain_filtered)
+    all_data = combine_stereo_pairs([data1, data2, data3])
+    filter_strain0_data(all_data)
+    compute_delaunay_mesh(all_data)
+    plot_delaunay_mesh_strain(x=all_data.x_filtered, y=all_data.y_filtered,
+                              z=all_data.z_filtered,
+                              simplices=all_data.simplices_filtered,
+                              strain=all_data.strain_filtered)
