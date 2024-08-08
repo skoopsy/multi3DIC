@@ -17,7 +17,7 @@ class DICDataset:
         self.z_filtered = None
         self.strain = None
         self.strain_filtered = None
-        self.trisurface = None  # Depreciate
+        self.delaunay = None
         self.simplices = None
         self.simplices_filtered = None
 
@@ -90,9 +90,18 @@ def compute_delaunay_mesh(DICDataset, filtered: bool = False):
     else:
         points_2d = np.vstack((DICDataset.x, DICDataset.y)).T
 
-    delaunay = Delaunay(points_2d)
-    DICDataset.simplices_filtered = delaunay.simplices
+    DICDataset.delaunay = Delaunay(points_2d)
+    DICDataset.simplices = DICDataset.delaunay.simplices
 
+def filter_delaunay_mesh_strain(dicdataset):
+
+    filter_bool = dicdataset.strain != 0
+    filtered_simplices = []
+    for simplex in dicdataset.delaunay.simplices:
+        if all(filter_bool[i] for i in simplex):
+            filtered_simplices.append(simplex)
+
+    dicdataset.simplices_filtered = np.array(filtered_simplices)
 
 def plot_delaunay_mesh_strain(x, y, z, simplices, strain, z_scale=1):
     # Create trisurface plot
@@ -127,17 +136,23 @@ def plot_delaunay_mesh_strain(x, y, z, simplices, strain, z_scale=1):
     return None
 def combine_stereo_pairs(meshes):
     all_data = DICDataset
-    vertext_offset = 0
-    all_data.x = []
-    all_data.y = []
-    all_data.z = []
-    all_data.strain = []
+
+    x_list = []
+    y_list = []
+    z_list = []
+    strain_list = []
 
     for mesh in meshes:
-        all_data.x.append(mesh.x)
-        all_data.y.append(mesh.y)
-        all_data.z.append(mesh.z)
-        all_data.strain.append(mesh.strain)
+        x_list.append(mesh.x)
+        y_list.append(mesh.y)
+        z_list.append(mesh.z)
+        strain_list.append(mesh.strain)
+
+    # Combine the lists of numpy arrays into single numpy arrays
+    all_data.x = np.concatenate(x_list)
+    all_data.y = np.concatenate(y_list)
+    all_data.z = np.concatenate(z_list)
+    all_data.strain = np.concatenate(strain_list)
 
     return all_data
 
@@ -151,11 +166,21 @@ if __name__ == '__main__':
                         import_type='LAVision')
 
     all_data = combine_stereo_pairs([data1, data2, data3])
+    #filter_strain0_data(all_data)
+    compute_delaunay_mesh(all_data)
+    filter_delaunay_mesh_strain(all_data)
 
-    filter_strain0_data(all_data)
-    compute_delaunay_mesh(all_data, filtered=True)
-
-    plot_delaunay_mesh_strain(x=all_data.x_filtered, y=all_data.y_filtered,
-                              z=all_data.z_filtered,
-                              simplices=all_data.simplices_filtered,
-                              strain=all_data.strain_filtered)
+    filtered=False
+    if filtered:
+        plot_delaunay_mesh_strain(x=all_data.x_filtered,
+                                  y=all_data.y_filtered,
+                                  z=all_data.z_filtered,
+                                  simplices=all_data.simplices,
+                                  strain=all_data.strain_filtered,
+                                  z_scale=0.5)
+    else:
+        plot_delaunay_mesh_strain(x=all_data.x,
+                                  y=all_data.y,
+                                  z=all_data.z,
+                                  simplices=all_data.simplices_filtered,
+                                  strain=all_data.strain)
