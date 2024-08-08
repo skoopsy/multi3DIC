@@ -151,6 +151,7 @@ if __name__ == '__main__':
                         import_type='LAVision')
 
     all_data = combine_stereo_pairs([data1, data2, data3])
+
     filter_strain0_data(all_data)
     compute_delaunay_mesh(all_data, filtered=True)
 
