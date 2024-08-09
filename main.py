@@ -63,16 +63,16 @@ def filter_strain0_data(DICDataset):
     DICDataset.strain_filtered = DICDataset.strain[mask]
 
     # Create mapping from old indices to new
-    # index_map = np.zeros_like(mask, dtype=int)
-    # index_map[mask] = np.arange(len(DICDataset.x_filtered))
+    index_map = np.zeros_like(mask, dtype=int)
+    index_map[mask] = np.arange(len(DICDataset.x_filtered))
 
     # Filter simplices to remove any that contain removed points
-    # DICDataset.simplices_filtered = []
-    # for simplex in DICDataset.simplices:
-    #    if mask[simplex].all():  # Only keep simplices where all points are kept
-    #        DICDataset.simplices_filtered.append(index_map[simplex])
+    DICDataset.simplices_filtered = []
+    for simplex in DICDataset.simplices:
+        if mask[simplex].all():  # Only keep simplices where all points are kept
+            DICDataset.simplices_filtered.append(index_map[simplex])
 
-    # DICDataset.simplices_filtered = np.array(DICDataset.simplices_filtered)
+    DICDataset.simplices_filtered = np.array(DICDataset.simplices_filtered)
 
     return None
 
@@ -156,6 +156,44 @@ def combine_stereo_pairs(meshes):
 
     return all_data
 
+
+import matplotlib.pyplot as plt
+import matplotlib.tri as tri
+from mpl_toolkits.mplot3d import Axes3D
+import plotly.graph_objects as go
+import plotly.figure_factory as ff
+
+def plot_delaunay_meshes(x_list, y_list, z_list, simplices_list, strain_list):
+    fig = go.Figure()
+
+    for x, y, z, simplices, strain in zip(x_list, y_list, z_list, simplices_list,
+                                          strain_list):
+        # Create a Delaunay triangulation
+        tri = Delaunay(np.vstack([x, y]).T)
+        simplices = tri.simplices
+
+        # Mesh3d requires i, j, k indices for vertices of each face
+        i, j, k = simplices[:, 0], simplices[:, 1], simplices[:, 2]
+
+        # Add the mesh3d trace to the figure
+        fig.add_trace(go.Mesh3d(
+            x=x, y=y, z=z,
+            i=i, j=j, k=k,
+            intensity=strain, colorscale='Viridis', colorbar=dict(title='Strain'),
+            opacity=0.5
+        ))
+
+    fig.update_layout(
+        scene=dict(
+            xaxis_title='X',
+            yaxis_title='Y',
+            zaxis_title='Z'
+        ),
+        title='Multi 3D Stereo DIC Pairs - Strain'
+    )
+    fig.show()
+
+
 if __name__ == '__main__':
 
     data1 = import_data(path='test_files/vector_field_export_cam1-2-0001.csv',
@@ -184,3 +222,34 @@ if __name__ == '__main__':
                                   z=all_data.z,
                                   simplices=all_data.simplices_filtered,
                                   strain=all_data.strain)
+
+    # Plot single datasets
+    for data in [data1,data2,data3]:
+        compute_delaunay_mesh(data)
+        filter_strain0_data(data)
+        plot_delaunay_mesh_strain(x=data.x_filtered,
+                              y=data.y_filtered,
+                              z=data.z_filtered,
+                              simplices=data.simplices_filtered,
+                              strain=data.strain_filtered)
+
+    # Initialize lists to hold data for each dataset
+    x_list = []
+    y_list = []
+    z_list = []
+    simplices_list = []
+    strain_list = []
+
+    # Collect data from each dataset
+    for data in [data1, data2, data3]:
+        compute_delaunay_mesh(data)
+        filter_strain0_data(data)
+
+        x_list.append(data.x_filtered)
+        y_list.append(data.y_filtered)
+        z_list.append(data.z_filtered)
+        simplices_list.append(data.simplices_filtered)
+        strain_list.append(data.strain_filtered)
+
+    # Plot all datasets on the same plot
+    plot_delaunay_meshes(x_list, y_list, z_list, simplices_list, strain_list)
