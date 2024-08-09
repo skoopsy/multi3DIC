@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy.spatial import Delaunay
 
 
 class Config:
@@ -94,10 +95,25 @@ def filter_strain0(DICDataset):
        total_entries = len(mask)
        entries_removed = total_entries - np.count_nonzero(mask)
        print(f"Entries removed: {entries_removed} of {total_entries}")
-
+       print(f"Entries remaining: {total_entries-entries_removed}")
 
    return None
 
+
+def compute_delaunay_mesh(DICDataset):
+    z = DICDataset.z
+    points_2d = np.column_stack((DICDataset.x,DICDataset.y))
+    tri = Delaunay(points_2d)
+
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_trisurf(points_2d[:, 0], points_2d[:, 1], z, triangles=tri.simplices,
+                    cmap=plt.cm.Spectral)
+
+    plt.show()
+    
+    return None
 
 file_paths = ['test_files/vector_field_export_cam1-2-0001.csv',
               'test_files/vector_field_export_cam2-3-0001.csv',
@@ -108,5 +124,5 @@ imported_data = import_and_combine_timestep(paths=file_paths,
                                             config=conf)
 data = merge_datasets(imported_data)
 filter_strain0(data)
-
+compute_delaunay_mesh(data)
 break_point=0
