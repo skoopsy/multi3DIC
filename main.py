@@ -1,41 +1,82 @@
-import sys
-
-from modules import classes, importing, methods
-
-if __name__ == '__main__':
-
-    # Initialisation
-    sys.path.append("..")
-    CONF = classes.Config()
-
-    # Stereo pair directories
-    stereo_pair_dirs = ["test_files/cam1-2/",
-                        "test_files/cam2-3/",
-                        "test_files/cam3-4/"]
-
-    # Import and organise data
-    datasets = importing.load_multiple_stereo_pairs(stereo_pair_dirs=stereo_pair_dirs,
-                                                    config=CONF)
-
-    # Use one of the methods to process and plot data
-    data_processing_method = 3
-    match data_processing_method:
-        case 1:
-            # timestep: mesh -> filter -> plot overlay
-            save_path = "plots/3d_plot_one_timestep_mesh_filter_plot_001.html"
-            methods.timestep_mesh_filter_plot_overlay(datasets=datasets,
-                                                      timestep_index=1,
-                                                      plot_save_path=save_path)
-        case 2:
-            # multiple timesteps: mesh -> filter -> plot overlay
-            save_path = "plots/3d_plot_timesteps_mesh_filter_plot_001.html"
-            methods.timesteps_mesh_filter_plot_overlay(datasets=datasets,
-                                                       plot_save_path=save_path)
-        case 3:
-            # timestep: combine -> filter -> plot scatter
-            save_path = "plots/3d_plot_timestep_combine_filter_plot_scatter_001.html"
-            methods.timestep_combine_filter_plot_scatter(datasets=datasets,
-                                                         timestep_index=1,
-                                                         plot_save_path=save_path)
+import pandas as pd
+import numpy as np
 
 
+class Config:
+    """ General configuration class for prototyping"""
+    debugging = True
+    print_sep = str(50 * "=")
+
+class ImportedDICDataset:
+    """ Imported dataset class"""
+    def __init__(self):
+        self.x = []
+        self.y = []
+        self.z = []
+        self.strain = []
+
+class DICDataset:
+    """ Main dataset class"""
+    def __init__(self):
+        self.x = None
+        self.y = None
+        self.z = None
+        self.strain = None
+
+
+conf = Config()
+
+
+def import_and_combine_timestep(paths: list[str], import_type: str, config: Config()):
+
+    # Initialise
+    importedData = ImportedDICDataset()
+
+    importedData.x = []
+    importedData.y = []
+    importedData.z = []
+    importedData.strain = []
+
+    # Iterate through files
+    for path in paths:
+
+        csv_df = pd.read_csv(path)
+
+        if config.debugging:
+            print(config.print_sep)
+            print(f"Loaded: {path}")
+            print(f"Shape: {csv_df.shape}")
+            print(f"Columns Found: {csv_df.columns}")
+            print(config.print_sep)
+
+        if import_type == 'LAVision':
+
+            # Check columns and import data
+            expected_cols = ['x[mm]', 'y[mm]', 'z[mm]', 'Maximum normal strain - RC[S]']
+            if all(col in csv_df.columns for col in expected_cols):
+                importedData.x.append(csv_df["x[mm]"].to_numpy())
+                importedData.y.append(csv_df["y[mm]"].to_numpy())
+                importedData.z.append(csv_df["z[mm]"].to_numpy())
+                importedData.strain.append(csv_df[("Maximum normal strain - RC["
+                                                 "S]")].to_numpy())
+            else:
+                print(f"Warning: Missing columns in {path}. Columns expected: "
+                      f"{expected_cols}")
+
+    break_point = 0
+    return importedData
+
+
+def merge_datasets(ImportedDICDataset):
+    return None
+
+file_paths = ['test_files/vector_field_export_cam1-2-0001.csv',
+              'test_files/vector_field_export_cam2-3-0001.csv',
+              'test_files/vector_field_export_cam3-4-0001.csv',]
+
+importedData = import_and_combine_timestep(paths=file_paths,
+                                           import_type='LAVision',
+                                           config=conf)
+data = merge_datasets(importedData)
+
+break_point=0
