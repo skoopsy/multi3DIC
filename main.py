@@ -23,7 +23,7 @@ class DICDataset:
 conf = Config()
 
 
-def import_and_combine_timestep(paths: list[str], import_type: str, config: Config()):
+def import_dic_data(paths: list[str], import_type: str, config: Config()):
 
     # Initialise
     imported_data = DICDataset()
@@ -146,7 +146,7 @@ def plot_mesh_interactive(DICDataset):
                                      )
                                      ))
     fig.show()
-
+    fig.write_html("plots/3d_plot_1timestep-combine-filter-delaunay-plot.html")
     return None
 
 
@@ -154,7 +154,7 @@ file_paths = ['test_files/vector_field_export_cam1-2-0001.csv',
               'test_files/vector_field_export_cam2-3-0001.csv',
               'test_files/vector_field_export_cam3-4-0001.csv',]
 
-imported_data = import_and_combine_timestep(paths=file_paths,
+imported_data = import_dic_data(paths=file_paths,
                                             import_type='LAVision',
                                             config=conf)
 data = merge_datasets(imported_data)
