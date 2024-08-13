@@ -46,7 +46,7 @@ def import_dic_data(paths: list[str], import_type: str, config: Config()):
 
         if import_type == 'LAVision':
 
-            # Check columns and import data
+            # Check columns and place data into lists of separate numpy arrays
             expected_cols = ['x[mm]', 'y[mm]', 'z[mm]', 'Maximum normal strain - RC[S]']
             if all(col in csv_df.columns for col in expected_cols):
                 imported_data.x.append(csv_df["x[mm]"].to_numpy())
@@ -118,7 +118,7 @@ def compute_delaunay_mesh(DICDataset):
     return None
 
 
-def plot_mesh_interactive(DICDataset):
+def plot_mesh_interactive(DICDataset, plot_save_path):
     """
     Using plotly go.Mesh3D to make 3d interactive plot specified
     with custom triangles
@@ -146,7 +146,7 @@ def plot_mesh_interactive(DICDataset):
                                      )
                                      ))
     fig.show()
-    fig.write_html("plots/3d_plot_1timestep-combine-filter-delaunay-plot.html")
+    fig.write_html(plot_save_path)
     return None
 
 
@@ -160,4 +160,5 @@ imported_data = import_dic_data(paths=file_paths,
 data = merge_datasets(imported_data)
 filter_strain0(data)
 compute_delaunay_mesh(data)
-plot_mesh_interactive(data)
+plot_save_path = "plots/3d_plot_1timestep-combine-filter-delaunay-plot.html"
+plot_mesh_interactive(data, plot_save_path)
