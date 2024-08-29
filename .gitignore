@@ -14,3 +14,4 @@ exp_*
 
 [Python]
 */__pycache__/*
+modules/__pycache__/*

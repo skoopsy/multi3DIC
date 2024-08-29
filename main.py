@@ -1,20 +1,23 @@
 import sys
 
-from modules.classes import DICDataset, Config
-from modules import methods, loading
+from modules import classes, importing, methods
 
 if __name__ == '__main__':
 
+    # Initialisation
     sys.path.append("..")
-    CONF = Config()
+    CONF = classes.Config()
 
     # Stereo pair directories
     stereo_pair_dirs = ["test_files/cam1-2/",
                         "test_files/cam2-3/",
                         "test_files/cam3-4/"]
 
-    datasets = loading.load_multiple_stereo_pairs(stereo_pair_dirs=stereo_pair_dirs,
-                                                  config=CONF)
+    # Import and organise data
+    datasets = importing.load_multiple_stereo_pairs(stereo_pair_dirs=stereo_pair_dirs,
+                                                    config=CONF)
 
-    
-    methods.mesh_filter_plot_combined(datasets=datasets)
+    # Use one of the methods to process and plot data
+    # methods.timestep_mesh_filter_plot(datasets=datasets,timestep_index=1,plot_save_path="plots/3d_plot_one_timestep_mesh_filter_plot_001.html")
+    # methods.timesteps_mesh_filter_plot_combined(datasets=datasets, plot_save_path="plots/3d_plot_all_timesteps_filter_plot_combined_001.html")
+    methods.timestep_combine_filter_plot_scatter(datasets=datasets, timestep_index=1, plot_save_path="plots/3d_plot_timestep_combine_filter_plot_scatter_001.html" )
