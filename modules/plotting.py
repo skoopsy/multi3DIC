@@ -59,7 +59,58 @@ def plot_delaunay_mesh_strain(x, y, z, simplices, strain, plot_save_path, z_scal
     return None
 
 
-def create_animated_mesh(datasets, z_scale=1):
+def multiple_meshes_single_timestep(datasets,
+                                    timestep_index,
+                                    plot_save_path=None,
+                                    z_scale=1):
+
+    # Set up layout with scaling
+    layout = go.Layout(
+        scene=dict(
+            aspectmode='data',
+            xaxis=dict(title='X [mm]'),
+            yaxis=dict(title='Y [mm]'),
+            zaxis=dict(title='Z [mm]'),
+        ),
+        title="DIC Surface Map Combined",
+        autosize=False,
+        width=500,
+        height=500,
+        margin=dict(
+            l=10,
+            r=10,
+            b=10,
+            t=30,
+            pad=4
+        )
+    )
+
+    # Create the figure and plot
+    fig = go.Figure(data=None, layout=layout)
+
+    for dataset in datasets:
+        fig.add_trace(go.Mesh3d(
+            x=dataset[timestep_index].x_filtered,
+            y=dataset[timestep_index].y_filtered,
+            z=dataset[timestep_index].z_filtered,
+            i=dataset[timestep_index].simplices_filtered[:, 0],
+            j=dataset[timestep_index].simplices_filtered[:, 1],
+            k=dataset[timestep_index].simplices_filtered[:, 2],
+            intensity=dataset[timestep_index].strain_filtered,
+            cmin=0,
+            cmax=2,
+            colorscale='Viridis',
+            showscale=False
+        ))
+
+    fig.show()
+
+    if plot_save_path != None:
+        fig.write_html(plot_save_path, full_html=False, include_plotlyjs='cdn')
+
+    return None
+
+def create_animated_mesh(datasets, z_scale=1, plot_save_path=None):
     """
     Creates an animated 3D Mesh plot where each frame represents a timestep across all
     stereo pairs.
@@ -203,3 +254,10 @@ def create_animated_mesh(datasets, z_scale=1):
 
     # Show the plot
     fig.show()
+
+    # Save plot
+    if plot_save_path != None:
+        fig.write_html(plot_save_path, full_html=False, include_plotlyjs='cdn')
+
+    return None
+
