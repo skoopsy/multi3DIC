@@ -11,3 +11,6 @@ plots/*
 
 [experiment files]
 exp_*
+
+[Python]
+*/__pycache__/*
