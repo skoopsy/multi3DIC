@@ -1,8 +1,11 @@
 import numpy as np
 from scipy.spatial import Delaunay
 
+from modules import classes
+from modules.classes import DICDataset
 
-def create_delaunay_mesh(DICDataset):
+
+def create_delaunay_mesh(DICDataset) -> None:
     """
     Construct a Delaunay triangular mesh from a DICDataset with x,y
     coordinates as an attribute in the DICDataset object.
@@ -22,7 +25,7 @@ def create_delaunay_mesh(DICDataset):
     return None
 
 
-def filter_strain0_data(DICDataset):
+def filter_strain0_data(DICDataset) -> None:
     """
     Fixes Region of Interest (ROI) issue where the mesh is the full
     resolution of the camera which captures noise. This removes
@@ -52,4 +55,29 @@ def filter_strain0_data(DICDataset):
     except Exception as e:
         print(f"Warning: Could not filter {DICDataset}")
         print(f"Exception: {e}")
+    return None
+
+def combine_filtered_stereo_pairs(meshes):
+    combined_data = DICDataset()
+
+    combined_data.x_filtered = np.concatenate([mesh.x_filtered for mesh in meshes])
+    combined_data.y_filtered = np.concatenate([mesh.y_filtered for mesh in meshes])
+    combined_data.z_filtered = np.concatenate([mesh.z_filtered for mesh in meshes])
+    combined_data.strain_filtered = np.concatenate([mesh.strain_filtered for mesh in meshes])
+
+    return combined_data
+
+
+def combine_unfiltered_stereo_pairs(meshes):
+    combined_data = DICDataset()
+
+    combined_data.x = np.concatenate([mesh.x for mesh in meshes])
+    combined_data.y = np.concatenate([mesh.y for mesh in meshes])
+    combined_data.z = np.concatenate([mesh.z for mesh in meshes])
+    combined_data.strain = np.concatenate([mesh.strain for mesh in meshes])
+
+    return combined_data
+
+
+def filter_strain0_points(DICDataset) -> None:
     return None

@@ -18,6 +18,24 @@ if __name__ == '__main__':
                                                     config=CONF)
 
     # Use one of the methods to process and plot data
-    # methods.timestep_mesh_filter_plot(datasets=datasets,timestep_index=1,plot_save_path="plots/3d_plot_one_timestep_mesh_filter_plot_001.html")
-    # methods.timesteps_mesh_filter_plot_combined(datasets=datasets, plot_save_path="plots/3d_plot_all_timesteps_filter_plot_combined_001.html")
-    methods.timestep_combine_filter_plot_scatter(datasets=datasets, timestep_index=1, plot_save_path="plots/3d_plot_timestep_combine_filter_plot_scatter_001.html" )
+    data_processing_method = 3
+    match data_processing_method:
+        case 1:
+            # timestep: mesh -> filter -> plot overlay
+            save_path = "plots/3d_plot_one_timestep_mesh_filter_plot_001.html"
+            methods.timestep_mesh_filter_plot_overlay(datasets=datasets,
+                                                      timestep_index=1,
+                                                      plot_save_path=save_path)
+        case 2:
+            # timesteps: mesh -> filter -> plot overlay
+            save_path = "plots/3d_plot_timesteps_mesh_filter_plot_001.html"
+            methods.timesteps_mesh_filter_plot_overlay(datasets=datasets,
+                                                       plot_save_path=save_path)
+        case 3:
+            # timestep: combine -> filter -> plot scatter
+            save_path = "plots/3d_plot_timestep_combine_filter_plot_scatter_001.html"
+            methods.timestep_combine_filter_plot_scatter(datasets=datasets,
+                                                         timestep_index=1,
+                                                         plot_save_path=save_path)
+
+
