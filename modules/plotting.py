@@ -1,6 +1,16 @@
 import plotly.figure_factory as ff
 import plotly.graph_objects as go
+import plotly.express as px
 
+
+def plot_scatter_points(dataset, plot_save_path: str) -> None:
+    fig = px.scatter_3d(dataset.x, dataset.y, dataset.z)
+    fig.show()
+
+    if plot_save_path:
+        fig.write_html(plot_save_path, full_html=False, include_plotlyjs='cdn')
+
+    return None
 
 def plot_delaunay_mesh(x, y, z, simplices, z_scale=1):
     # Just for testing, using go for strain map.
@@ -260,4 +270,3 @@ def create_animated_mesh(datasets, z_scale=1, plot_save_path=None):
         fig.write_html(plot_save_path, full_html=False, include_plotlyjs='cdn')
 
     return None
-

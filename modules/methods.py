@@ -1,24 +1,8 @@
-from modules.processing import create_delaunay_mesh, filter_strain0_data
+from modules.processing import (create_delaunay_mesh, filter_strain0_data,
+                                filter_strain0_points,
+                                combine_filtered_stereo_pairs,
+                                combine_unfiltered_stereo_pairs)
 from modules import plotting
-
-
-def timesteps_mesh_filter_plot_combined(datasets, plot_save_path=None):
-    """
-    Method:
-    1. 3 sets of point clouds
-    2. Delaunay tesselate individual sets
-    3. Filter delaunay simplicies with strain == 0 points
-    4. Plot 3 mesh sets on top of each other
-    """
-
-    # Create Delaunay meshes and filter for all timesteps of all stereo pairs:
-    for stereo_pair in datasets:
-        for timestep in stereo_pair:
-            create_delaunay_mesh(timestep)
-            filter_strain0_data(timestep)
-
-    # Plot the meshes per timestep in interactive plot
-    plotting.create_animated_mesh(datasets, z_scale=1, plot_save_path=plot_save_path)
 
 
 def timesteps_combine_filter_neighbours_mesh_filter_plot(datasets):
@@ -38,7 +22,7 @@ def timesteps_combine_filter_neighbours_mesh_filter_plot(datasets):
     return None
 
 
-def timestep_mesh_filter_plot(datasets, timestep_index: int, plot_save_path=None):
+def timestep_mesh_filter_plot_overlay(datasets, timestep_index: int, plot_save_path=None):
     """
     For a single time step:
     1. Delaunay mesh on each stereo pair
@@ -58,6 +42,25 @@ def timestep_mesh_filter_plot(datasets, timestep_index: int, plot_save_path=None
     return None
 
 
+def timesteps_mesh_filter_plot_overlay(datasets, plot_save_path=None):
+    """
+    Method:
+    1. 3 sets of point clouds
+    2. Delaunay tesselate individual sets
+    3. Filter delaunay simplicies with strain == 0 points
+    4. Plot 3 mesh sets on top of each other
+    """
+
+    # Create Delaunay meshes and filter for all timesteps of all stereo pairs:
+    for stereo_pair in datasets:
+        for timestep in stereo_pair:
+            create_delaunay_mesh(timestep)
+            filter_strain0_data(timestep)
+
+    # Plot the meshes per timestep in interactive plot
+    plotting.create_animated_mesh(datasets, z_scale=1, plot_save_path=plot_save_path)
+
+
 def timesteps_combine_mesh_filter_plot(datasets):
     """
     Method:
@@ -70,7 +73,7 @@ def timesteps_combine_mesh_filter_plot(datasets):
     """
     return None
 
-def timestep_combine_filter_plot_scatter(dataset, timestep_index, plot_save_path=None):
+def timestep_combine_filter_plot_scatter(datasets, timestep_index, plot_save_path=None):
     """
     Method:
     1. Combine point clouds
@@ -82,4 +85,10 @@ def timestep_combine_filter_plot_scatter(dataset, timestep_index, plot_save_path
     :param plot_save_path:
     :return:
     """
+
+    datasets = [ dataset[timestep_index] for dataset in datasets ]
+    combined_data = combine_unfiltered_stereo_pairs(datasets)
+    filter_strain0_points(combined_data)
+    plotting.plot_scatter_points(combined_data, plot_save_path)
+
     return None
