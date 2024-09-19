@@ -36,9 +36,9 @@ def timestep_mesh_filter_plot_overlay(datasets, timestep_index: int, plot_save_p
         filter_strain0_data(data)
 
     plotting.multiple_meshes_single_timestep(datasets=datasets,
-                                    timestep_index=timestep_index,
-                                    plot_save_path=plot_save_path,
-                                    z_scale=1)
+                                             timestep_index=timestep_index,
+                                             plot_save_path=plot_save_path,
+                                             z_scale=1)
     return None
 
 
@@ -50,13 +50,16 @@ def timesteps_mesh_filter_plot_overlay(datasets, plot_save_path=None):
     3. Filter delaunay simplicies with strain == 0 points
     4. Plot 3 mesh sets on top of each other
     """
+    print(str(20*'='))
+    print(f"Starting timestep mesh filtering overlay for {len(datasets)} datasets")
 
     # Create Delaunay meshes and filter for all timesteps of all stereo pairs:
     for stereo_pair in datasets:
         for timestep in stereo_pair:
             create_delaunay_mesh(timestep)
+            print(f"mesh created for stereo_pair, timestep {timestep}")
             filter_strain0_data(timestep)
-
+            print(f"filtering strain 0 for stereo_pair, timestep {timestep}")
     # Plot the meshes per timestep in interactive plot
     plotting.create_animated_mesh(datasets, z_scale=1, plot_save_path=plot_save_path)
 
@@ -73,6 +76,7 @@ def timesteps_combine_mesh_filter_plot(datasets):
     """
     return None
 
+
 def timestep_combine_filter_plot_scatter(datasets, timestep_index, plot_save_path=None):
     """
     Method:
@@ -80,7 +84,7 @@ def timestep_combine_filter_plot_scatter(datasets, timestep_index, plot_save_pat
     2. Filter out strain == 0 points
     3. Plot combination as scatter plot
 
-    :param dataset:
+    :param datasets:
     :param timestep_index:
     :param plot_save_path:
     :return:

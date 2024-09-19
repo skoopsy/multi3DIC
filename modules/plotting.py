@@ -4,11 +4,11 @@ import plotly.express as px
 
 
 def plot_scatter_points(dataset, plot_save_path: str) -> None:
-    fig = px.scatter_3d(dataset.x, dataset.y, dataset.z)
-    fig.show()
+    fig = px.scatter_3d(dataset.x.flatten(), dataset.y.flatten(), dataset.z.flatten())
+    fig.show(renderer='browser')
 
-    if plot_save_path:
-        fig.write_html(plot_save_path, full_html=False, include_plotlyjs='cdn')
+    #if plot_save_path:
+        #fig.write_html(plot_save_path, full_html=False, include_plotlyjs='cdn')
 
     return None
 
