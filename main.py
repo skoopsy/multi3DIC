@@ -18,7 +18,7 @@ if __name__ == '__main__':
                                                     config=CONF)
 
     # Use one of the methods to process and plot data
-    data_processing_method = 2
+    data_processing_method = 3
     match data_processing_method:
         case 1:
             # timestep: mesh -> filter -> plot overlay

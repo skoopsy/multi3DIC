@@ -89,10 +89,15 @@ def timestep_combine_filter_plot_scatter(datasets, timestep_index, plot_save_pat
     :param plot_save_path:
     :return:
     """
+    print(str(20 * '='))
+    print(f"Starting timestep mesh filtering overlay for {len(datasets)} datasets")
 
     datasets = [dataset[timestep_index] for dataset in datasets]
     combined_data = combine_unfiltered_stereo_pairs(datasets)
+    print("stereo pairs combined")
     filter_strain0_points(combined_data)
+    print("filtered points")
     plotting.plot_scatter_points(combined_data, plot_save_path)
+    print("scatter points")
 
     return None
