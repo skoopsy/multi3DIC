@@ -35,7 +35,7 @@ if __name__ == '__main__':
             # timestep: combine -> filter -> plot scatter
             save_path = "plots/3d_plot_timestep_combine_filter_plot_scatter_001.html"
             methods.timestep_combine_filter_plot_scatter(datasets=datasets,
-                                                         timestep_index=1,
+                                                         timestep_index=100,
                                                          plot_save_path=save_path)
 
 
