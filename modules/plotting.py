@@ -6,9 +6,11 @@ import plotly.express as px
 def plot_scatter_points(dataset, plot_save_path: str) -> None:
     fig = px.scatter_3d(x=dataset.x.flatten(),
                         y=dataset.y.flatten(),
-                        z=dataset.z.flatten()
-                        )
-    fig.update_traces(marker=dict(size=1))  # Set size to a smaller value, e.g., 3
+                        z=dataset.z.flatten(),
+                        color=dataset.strain.flatten())
+
+    fig.update_traces(marker=dict(size=2))  # Set size to a smaller value, e.g., 3
+    fig.update_layout(coloraxis_colorbar=dict(title="Strain"))
 
     fig.show(renderer='browser')
 
