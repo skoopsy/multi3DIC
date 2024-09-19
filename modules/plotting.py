@@ -236,7 +236,7 @@ def create_animated_mesh(datasets, z_scale=1, plot_save_path=None):
             yaxis=dict(title='Y [mm]', range=[y_min, y_max]),  # Fix the y-axis range
             zaxis=dict(title='Z [mm]', range=[z_min, z_max]),  # Fix the z-axis range
         ),
-        title="Animated 3D Mesh over Timesteps",
+        title="DIC Strain over Time",
         sliders=[sliders_dict],
         updatemenus=[
             {
