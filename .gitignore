@@ -7,6 +7,7 @@
 *.json
 *.csv
 test_files/*
+plots/*
 
 [experiment files]
 exp_*
