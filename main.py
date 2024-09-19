@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from scipy.spatial import Delaunay
 import sys
 sys.path.append("..")
-import os
+
 
 class DICDataset:
     """ Class to hold data from a stereo DIC dataset """
@@ -18,47 +18,55 @@ class DICDataset:
         self.z_filtered = None
         self.strain = None
         self.strain_filtered = None
-        self.trisurface = None # Depreciate
+        self.trisurface = None  # Depreciate
         self.simplices = None
         self.simplices_filtered = None
 
+
 def import_data(path, import_type):
     """
-    Loads a vector field file into a
-    DICDataset object.
+    Loads a vector field file into a DICDataset object. The vector field file is assumed
+    to have been produced by DIC software producing xyz coordinates along with the
+    associated strain values. This import currently imports a single timestep.
+
+    :param  path :string
+    :param  import_type :string
+    :return: None
     """
     csv_df = pd.read_csv(path)
 
     # Instantiate class to store data
-    data = DICDataset()
+    dic_data = DICDataset()
 
     if import_type == 'LAVision':
         # Put data in numpy arrays
-        data.x = csv_df['x[mm]'].to_numpy()
-        data.y = csv_df['y[mm]'].to_numpy()
-        data.z = csv_df['z[mm]'].to_numpy()
-        data.strain = csv_df['Maximum normal strain - RC[S]'].to_numpy()
+        dic_data.x = csv_df['x[mm]'].to_numpy()
+        dic_data.y = csv_df['y[mm]'].to_numpy()
+        dic_data.z = csv_df['z[mm]'].to_numpy()
+        dic_data.strain = csv_df['Maximum normal strain - RC[S]'].to_numpy()
 
-    return data
+    return dic_data
+
 
 def create_delaunay_mesh(DICDataset):
     """
     Construct a Delaunay triangular mesh from a DICDataset with x,y,z
     coordinates as an attribute in the DICDataset object.
 
-    :param DICDataset:
+    :param DICDataset :DICDataset object
     :return: None
     """
     # Create array of 2d points (xy)
-    points2D = np.vstack([DICDataset.x,DICDataset.y]).T
+    points_2d = np.vstack([DICDataset.x, DICDataset.y]).T
 
     # Use Delaunay meshing to connect 2d points
-    tri = Delaunay(points2D)
+    tri = Delaunay(points_2d)
     DICDataset.simplices = tri.simplices
 
     return None
 
-def plot_delaunay_mesh(x,y,z,simplices, z_scale=1):
+
+def plot_delaunay_mesh(x, y, z, simplices, z_scale=1):
     # Just for testing, using go for strain map.
     fig = ff.create_trisurf(x=x, y=y, z=z,
                             simplices=simplices,
@@ -67,6 +75,7 @@ def plot_delaunay_mesh(x,y,z,simplices, z_scale=1):
     fig.show()
 
     return None
+
 
 def plot_delaunay_mesh_strain(x, y, z, simplices, strain, z_scale=1):
     # Create trisurface plot
@@ -99,14 +108,15 @@ def plot_delaunay_mesh_strain(x, y, z, simplices, strain, z_scale=1):
     fig.show()
 
     return None
+
 def filter_strain0_data(DICDataset):
     """
-    Fixes Region of interest issue where the mesh is the full
+    Fixes Region of Interest (ROI) issue where the mesh is the full
     resolution of the camera which captures noise. This removes
     data points which correspond to a zero strain reading.
 
-    This could bite back if the ROI has areas of 0 strain but
-    due to measurement noise I do not think the values will ever == 0.
+    This could bite back if the ROI has areas of 0 strain, but
+    due to noise the measurements are unlikely to == 0.
     """
 
     # Filter out points where strain = 0
@@ -134,10 +144,8 @@ def filter_strain0_data(DICDataset):
 if __name__ == '__main__':
 
     data = import_data(path='test_files/vector_field_export_cam1-2-0001.csv',
-                        import_type='LAVision')
-
+                       import_type='LAVision')
     create_delaunay_mesh(data)
-
     filter_strain0_data(data)
 
     plot_delaunay_mesh_strain(x=data.x_filtered, y=data.y_filtered,
