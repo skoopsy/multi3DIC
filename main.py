@@ -27,7 +27,7 @@ if __name__ == '__main__':
                                                       timestep_index=1,
                                                       plot_save_path=save_path)
         case 2:
-            # timesteps: mesh -> filter -> plot overlay
+            # multiple timesteps: mesh -> filter -> plot overlay
             save_path = "plots/3d_plot_timesteps_mesh_filter_plot_001.html"
             methods.timesteps_mesh_filter_plot_overlay(datasets=datasets,
                                                        plot_save_path=save_path)
