@@ -86,7 +86,7 @@ def timestep_combine_filter_plot_scatter(datasets, timestep_index, plot_save_pat
     :return:
     """
 
-    datasets = [ dataset[timestep_index] for dataset in datasets ]
+    datasets = [dataset[timestep_index] for dataset in datasets]
     combined_data = combine_unfiltered_stereo_pairs(datasets)
     filter_strain0_points(combined_data)
     plotting.plot_scatter_points(combined_data, plot_save_path)
