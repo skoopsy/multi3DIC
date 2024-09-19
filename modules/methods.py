@@ -1,4 +1,5 @@
-from modules.processing import (create_delaunay_mesh, filter_strain0_data,
+from modules.processing import (create_delaunay_mesh,
+                                filter_strain0_data,
                                 filter_strain0_points,
                                 combine_filtered_stereo_pairs,
                                 combine_unfiltered_stereo_pairs)
@@ -93,11 +94,11 @@ def timestep_combine_filter_plot_scatter(datasets, timestep_index, plot_save_pat
     print(f"Starting timestep mesh filtering overlay for {len(datasets)} datasets")
 
     datasets = [dataset[timestep_index] for dataset in datasets]
+    print("Combining stereo pairs...")
     combined_data = combine_unfiltered_stereo_pairs(datasets)
-    print("stereo pairs combined")
+    print("Filtering strain == 0 points...")
     filter_strain0_points(combined_data)
-    print("filtered points")
+    print("Plotting 3D scatter plot...")
     plotting.plot_scatter_points(combined_data, plot_save_path)
-    print("scatter points")
 
     return None
