@@ -8,6 +8,11 @@
 *.csv
 test_files/*
 plots/*
+test_files/*
 
 [experiment files]
 exp_*
+
+[Python]
+*/__pycache__/*
+modules/__pycache__/*

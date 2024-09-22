@@ -4,8 +4,15 @@ import plotly.express as px
 
 
 def plot_scatter_points(dataset, plot_save_path: str) -> None:
-    fig = px.scatter_3d(dataset.x, dataset.y, dataset.z)
-    fig.show()
+    fig = px.scatter_3d(x=dataset.x.flatten(),
+                        y=dataset.y.flatten(),
+                        z=dataset.z.flatten(),
+                        color=dataset.strain.flatten())
+
+    fig.update_traces(marker=dict(size=2))  # Set size to a smaller value, e.g., 3
+    fig.update_layout(coloraxis_colorbar=dict(title="Strain"))
+
+    fig.show(renderer='browser')
 
     if plot_save_path:
         fig.write_html(plot_save_path, full_html=False, include_plotlyjs='cdn')
@@ -229,7 +236,7 @@ def create_animated_mesh(datasets, z_scale=1, plot_save_path=None):
             yaxis=dict(title='Y [mm]', range=[y_min, y_max]),  # Fix the y-axis range
             zaxis=dict(title='Z [mm]', range=[z_min, z_max]),  # Fix the z-axis range
         ),
-        title="Animated 3D Mesh over Timesteps",
+        title="DIC Strain over Time",
         sliders=[sliders_dict],
         updatemenus=[
             {

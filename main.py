@@ -18,7 +18,7 @@ if __name__ == '__main__':
                                                     config=CONF)
 
     # Use one of the methods to process and plot data
-    data_processing_method = 3
+    data_processing_method = 2
     match data_processing_method:
         case 1:
             # timestep: mesh -> filter -> plot overlay
@@ -33,7 +33,7 @@ if __name__ == '__main__':
                                                        plot_save_path=save_path)
         case 3:
             # timestep: combine -> filter -> plot scatter
-            save_path = "plots/3d_plot_timestep_combine_filter_plot_scatter_001.html"
+            save_path = "plots/3d_plot_timestep_combine_filter_plot_scatter_T01.html"
             methods.timestep_combine_filter_plot_scatter(datasets=datasets,
                                                          timestep_index=1,
                                                          plot_save_path=save_path)

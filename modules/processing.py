@@ -80,4 +80,14 @@ def combine_unfiltered_stereo_pairs(meshes):
 
 
 def filter_strain0_points(DICDataset) -> None:
+    try:
+        mask = DICDataset.strain != 0
+        DICDataset.x = DICDataset.x[mask]
+        DICDataset.y = DICDataset.y[mask]
+        DICDataset.z = DICDataset.z[mask]
+        DICDataset.strain = DICDataset.strain[mask]
+    except Exception as e:
+        print(f"Warning: Could not filter {DICDataset}")
+        print(f"Exception: {e}")
+
     return None
